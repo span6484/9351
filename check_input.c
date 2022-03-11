@@ -9,7 +9,7 @@
 
 
 int main(void) {
-    char *pname = "Clifton-Everest,Charles Edward";
+    char *pname = "Xxx,Yyy Zzz Aaa Bbb Ccc Ddd";
     int i;
     int condition = 1;     //0： false 1: true
     int comma_num = 0;          //; appear times
@@ -25,8 +25,8 @@ int main(void) {
         return condition;
     }
     for (i = 0; i < strlen(pname); i++) {
-        if (isdigit(pname[i])) {
-            //printf("There is a digit\n");
+        if (!isalpha(pname[i]) && !isspace(pname[i]) && pname[i] != ',') {
+            printf("if not space, not comma, not alpha\n");
             condition = 0;
             return condition;
         }
@@ -99,6 +99,12 @@ int main(void) {
 
     if (strlen(family_name) < 2 || strlen(given_name) < 2) {         //names begin with an upper-case letter
         //printf("names must at least 2 letters\n");
+        condition = 0;
+        return condition;
+    }
+
+    if (isspace(family_name[strlen(family_name)-1])|| isspace(given_name[strlen(given_name)-1])) {         //names begin with an upper-case letter
+        printf("end of space\n");
         condition = 0;
         return condition;
     }

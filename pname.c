@@ -146,20 +146,25 @@ pname_in(PG_FUNCTION_ARGS)
     PersonName    *result;
     //string length
     int length = 0;
-
     if (check_input(str) == 0)			//0 is false
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
                         errmsg("invalid input syntax for type %s: \"%s\"",
                                "PersonName", str)));
 
+
     length = strlen(str) + 1;			//c语言字符串长度后面空一个
+
     result = (PersonName *) palloc(VARHDRSZ + length);
+
+
     SET_VARSIZE(result, VARHDRSZ + length);		// 分配好足够内存
     // result->x = x;
     // result->y  = y;				//要做处理
+
     strcpy(result->pname, str);		//复制输入的内容到postgresql中
     // 返回结构体指针
+
     PG_RETURN_POINTER(result);
 }
 
@@ -254,7 +259,7 @@ pname_abs_cmp(PG_FUNCTION_ARGS)
     PG_RETURN_INT32(pname_abs_cmp_internal(a, b));
 }
 
-//	TO family.   return string
+
 PG_FUNCTION_INFO_V1(family);
 
 Datum
@@ -262,9 +267,40 @@ family(PG_FUNCTION_ARGS)
 {
     char *result;
     PersonName    *a = (PersonName *) PG_GETARG_POINTER(0);
-    // 把family name取出来返回
-    result = psprintf("%s", a->pname);	//格式化输出
+    //to do
+
+    int i = 0;
+    int comma_num = 0;          //; appear times
+    int comma_index = 0;        // , index
+    char* family_name;
+    int family_name_len;
+    int space_after_commaTime = 0;
+
+    for (i = 0; i < strlen(a->pname); i++) {
+
+        if (!isspace(a->pname[i])) {
+            space_after_commaTime = 0;
+        }
+
+        if (isspace(a->pname[i]) && (i == comma_index+1)) {
+            space_after_commaTime += 1;
+        }
+        if (a->pname[i] == ',') {
+            comma_index = i;
+            comma_num += 1;
+            space_after_commaTime = 0;
+        }
+
+    }
+    family_name_len = comma_index + 1;      //'a\0'
+    family_name = malloc(sizeof (char) * family_name_len);
+    strncpy(family_name,a->pname, comma_index);
+    family_name[comma_index] = '\0';
+
+    // 把family name取出来返回, dont change
+    result = psprintf("%s", family_name);	//格式化输出
     PG_RETURN_CSTRING(result);			//return 一个字符串
+    free(family_name);
 }
 
 
@@ -279,8 +315,50 @@ given(PG_FUNCTION_ARGS)
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
     // 把given name取出来返回
     //TODO
-    result = psprintf("%s", a->pname);	//格式化输出
+    int i = 0;
+    int comma_num = 0;          //; appear times
+    int comma_index = 0;        // , index
+//    char* family_name;
+    char* given_name = NULL;
+//    int family_name_len;
+    int given_name_len = 0;
+    int space_after_commaTime = 0;
+
+    for (i = 0; i < strlen(a->pname); i++) {
+
+        if (!isspace(a->pname[i])) {
+            space_after_commaTime = 0;
+        }
+
+        if (isspace(a->pname[i]) && (i == comma_index+1)) {
+            space_after_commaTime += 1;
+        }
+        if (a->pname[i] == ',') {
+            comma_index = i;
+            comma_num += 1;
+            space_after_commaTime = 0;
+        }
+
+    }
+
+    if(isspace(a->pname[comma_index+1])) {         //Smith, John
+        given_name_len = strlen(a->pname)-comma_index;
+        given_name = malloc(sizeof (char) * given_name_len);
+        strcpy(given_name,a->pname+comma_index+1+1);
+        given_name[given_name_len] = '\0';
+    }
+    else {
+        given_name_len = strlen(a->pname)-comma_index;                     //Smith,John
+        given_name = malloc(sizeof (char) * given_name_len);
+        strcpy(given_name,a->pname+comma_index+1);
+        given_name[given_name_len] = '\0';
+    }
+
+
+    //---------dont change
+    result = psprintf("%s", given_name);	//格式化输出
     PG_RETURN_CSTRING(result);			//return 一个字符串
+    free(given_name);
 }
 
 
