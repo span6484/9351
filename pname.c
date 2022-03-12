@@ -93,7 +93,7 @@ static int check_input(char *pname) {
     }
 
     family_name_len = comma_index + 1;      //'a\0'
-    family_name = malloc(sizeof (char) * family_name_len);
+    family_name = malloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
 
@@ -102,7 +102,7 @@ static int check_input(char *pname) {
         given_name_len = strlen(pname)-comma_index-1;
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);     //AB,CDE
-        given_name = malloc(sizeof (char) * given_name_len);
+        given_name = malloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));     //AB,CDE
         strcpy(given_name,pname+comma_index+1+1);
         given_name[given_name_len] = '\0';
@@ -176,19 +176,32 @@ pname_out(PG_FUNCTION_ARGS)
     PersonName    *personName = (PersonName *) PG_GETARG_POINTER(0);
     char	   *result = NULL;
     char *new_result = NULL;
-    int i,j;
+    int i = 0;
+    int new_result_len = 0;
+    int comma_index = 0;
     result = palloc(sizeof(char)*strlen(personName->pname));
     strcpy(result,personName->pname);
-    new_result = palloc(sizeof (char) * strlen(result) + 1);
-    for (i = 0, j = 0; i < strlen(result); i++) {
-        if (i > 0 && result[i-1] == ',' && result[i] == ' ') {
-            continue;
+    for (i = 0; i < strlen(result); i++) {
+        if (result[i] == ',') {
+            comma_index = i;
+            break;
         }
-        new_result[j] = result[i];
-        j++;
     }
-    new_result[j] = '\0';
-    // result = psprintf("%s", personName->pname);	//格式化输出
+
+    if(isspace(result[comma_index+1])) {
+        comma_index += 1;
+        new_result_len = strlen(result);
+        new_result = malloc(sizeof (char) * new_result_len+1);
+        strncpy(new_result, result, comma_index);
+
+        new_result[comma_index] = '\0';
+        strcat(new_result, result+comma_index+1);
+    }
+    else {
+        new_result_len = strlen(result) + 1;
+        new_result = malloc(sizeof (char) * new_result_len+1);
+        strcpy(new_result, result);
+    }
     // printf("%s\n", new_result);
     // result = psprintf("%s", personName->pname);	//格式化输出
 
@@ -309,7 +322,7 @@ family(PG_FUNCTION_ARGS)
 
     }
     family_name_len = comma_index + 1;      //'a\0'
-    family_name = malloc(sizeof (char) * family_name_len);
+    family_name = malloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,a->pname, comma_index);
     family_name[comma_index] = '\0';
 
@@ -359,13 +372,13 @@ given(PG_FUNCTION_ARGS)
 
     if(isspace(a->pname[comma_index+1])) {         //Smith, John
         given_name_len = strlen(a->pname)-comma_index;
-        given_name = malloc(sizeof (char) * given_name_len);
+        given_name = malloc(sizeof (char) * given_name_len+1);
         strcpy(given_name,a->pname+comma_index+1+1);
         given_name[given_name_len] = '\0';
     }
     else {
         given_name_len = strlen(a->pname)-comma_index;                     //Smith,John
-        given_name = malloc(sizeof (char) * given_name_len);
+        given_name = malloc(sizeof (char) * given_name_len+1);
         strcpy(given_name,a->pname+comma_index+1);
         given_name[given_name_len] = '\0';
     }
