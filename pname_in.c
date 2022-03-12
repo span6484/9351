@@ -9,23 +9,30 @@
 
 
 int main(void) {
-    char *str = "Xxx, Yyy";
-    char *new_str = NULL;
+    char *result = "Xxx, Yyy Zzz Aaa Bbb Ccc Ddd";
+    char *new_result = NULL;
     int i = 0;
-    int new_str_len = 0;
+    int new_result_len = 0;
     int comma_index = 0;
-    for (i = 0; i < strlen(str); i++) {
-        if (str[i] == ',') {
+    for (i = 0; i < strlen(result); i++) {
+        if (result[i] == ',') {
             comma_index = i;
             break;
         }
     }
-    if(isspace(str[comma_index+1])) {
+    if(isspace(result[comma_index+1])) {
         comma_index += 1;
-        new_str_len = strlen(str);
-        new_str = malloc(sizeof (char) * new_str_len);
-        strncpy(new_str, str, comma_index);
-        strcat(new_str, str+comma_index+1);
+        new_result_len = strlen(result);
+        new_result = malloc(sizeof (char) * new_result_len);
+        strncpy(new_result, result, comma_index);
+        printf("%s\n", new_result);
+        strcat(new_result, result+comma_index+1);
     }
-    printf("%s\n", new_str);
+    else {
+        new_result_len = strlen(result) + 1;
+        new_result = malloc(sizeof (char) * new_result_len);
+        strcpy(new_result, result);
+    }
+    printf("%s\n", new_result);
+    free(new_result);
 }

@@ -174,10 +174,26 @@ Datum
 pname_out(PG_FUNCTION_ARGS)
 {
     PersonName    *personName = (PersonName *) PG_GETARG_POINTER(0);
-    char	   *result;
+    char	   *result = NULL;
+    char *new_result = NULL;
+    int i,j;
+    result = palloc(sizeof(char)*strlen(personName->pname));
+    strcpy(result,personName->pname);
+    new_result = palloc(sizeof (char) * strlen(result) + 1);
+    for (i = 0, j = 0; i < strlen(result); i++) {
+        if (i > 0 && result[i-1] == ',' && result[i] == ' ') {
+            continue;
+        }
+        new_result[j] = result[i];
+        j++;
+    }
+    new_result[j] = '\0';
+    // result = psprintf("%s", personName->pname);	//格式化输出
+    // printf("%s\n", new_result);
+    // result = psprintf("%s", personName->pname);	//格式化输出
 
-    result = psprintf("%s", personName->pname);	//格式化输出
-    PG_RETURN_CSTRING(result);
+    PG_RETURN_CSTRING(new_result);
+
 }
 
 
