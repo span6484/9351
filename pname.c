@@ -112,29 +112,41 @@ static int check_input(char *pname) {
         return condition;
     }
 
-    family_name_len = comma_index + 1;      //'a\0'
-    family_name = malloc(sizeof (char) * family_name_len+1);
+    family_name_len = comma_index;      //'a\0'
+    // elog(NOTICE, "comma index palloc size is %d", comma_index);
+    // elog(NOTICE, "family name len is %d",family_name_len);
+    // elog(NOTICE, "family name palloc size is %d", family_name_len+1);
+    family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
-
+    // elog(NOTICE, "family name is %s", family_name);
 
     if(isspace(pname[comma_index+1])) {         //Smith, John
-        given_name_len = strlen(pname)-comma_index-1;
+        given_name_len = strlen(pname)-comma_index-1-1;
+
+        // elog(NOTICE, "pname name length size is %d", given_name_len);
+        // elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);     //AB,CDE
-        given_name = malloc(sizeof (char) * given_name_len+1);
+        given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));     //AB,CDE
         strcpy(given_name,pname+comma_index+1+1);
+        // elog(NOTICE, "pname name is %s",given_name);
         given_name[given_name_len] = '\0';
     }
     else {
         given_name_len = strlen(pname)-comma_index;                     //Smith,John
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);
-        given_name = malloc(sizeof (char) * given_name_len);
+
+        // elog(NOTICE, "pname name length size is %d", given_name_len);
+        // elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
+        given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));
         strcpy(given_name,pname+comma_index+1);
         given_name[given_name_len] = '\0';
+        // elog(NOTICE, "pname name is %s",given_name);
+
     }
 
     if (!isupper(family_name[0]) || !isupper(given_name[0])) {         //names begin with an upper-case letter
@@ -151,8 +163,8 @@ static int check_input(char *pname) {
     //printf("First name: %s\n", family_name);
     //printf("Given name: %s\n", given_name);
 
-    free(family_name);
-    free(given_name);
+    // free(family_name);
+    // free(given_name);
     return condition;
 }
 
