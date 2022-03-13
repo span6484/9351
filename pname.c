@@ -37,25 +37,31 @@ typedef struct personName
 //there will be no initials (e.g. no Shepherd,John A)
 static int check_input(char *pname) {
     int i;
-    int condition = 1;     //0： false 1: true
+    int condition = 1;     //   0： false 1: true
     int comma_num = 0;          //; appear times
-    int comma_index = 0;        // , index
+    int comma_index = -1;        // , index
     char* family_name;
     char* given_name;
     int family_name_len;
     int given_name_len;
     int space_after_commaTime = 0;
+    int strlen_afterSpace_count = 0;            // count strnglen after each space
     if (!isalpha(pname[0])){
         //printf("first char is not alpha");
         condition = 0;
         return condition;
     }
+    if (isspace(pname[0])){         //' Smith, John'
+        //printf("first char is not space");
+        condition = 0;
+        return condition;
+    }
     for (i = 0; i < strlen(pname); i++) {
-        if (isdigit(pname[i])) {
-            //printf("There is a digit\n");
+        if (!isalpha(pname[i]) && !isspace(pname[i]) && pname[i] != ',' && pname[i] != '\'' && pname[i] != '-') {
             condition = 0;
             return condition;
         }
+
         if (!isspace(pname[i])) {
             space_after_commaTime = 0;
         }
@@ -82,10 +88,24 @@ static int check_input(char *pname) {
             }
             space_after_commaTime = 0;
         }
+        if (isspace(pname[i])) {
+            if (strlen_afterSpace_count < 2) {
+                condition = 0;
+                return condition;
+            }
+            strlen_afterSpace_count = 0;
+        }
+        else {
+            strlen_afterSpace_count ++;
+        }
 
     }
 
-    if (comma_num == 0) {
+    if (strlen_afterSpace_count < 2) {
+        condition = 0;
+        return condition;
+    }
+    if (comma_num == -1) {
         condition = 0;
 
         //printf("there will be no people with just one name");
@@ -400,10 +420,11 @@ show(PG_FUNCTION_ARGS)
 {
     char *result = NULL;
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
+    // textsize= VARHDRSE + strlen(personName->pname) + 1
     // show name取出来返回
     //TODO
     result = psprintf("%s", a->pname);	//格式化输出
-    PG_RETURN_CSTRING(result);			//return 一个字符串
+    PG_RETURN_CSTRING(result);			//return 一个字符串, 返回text
 }
 
 
