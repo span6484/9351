@@ -576,10 +576,13 @@ show(PG_FUNCTION_ARGS)
             comma_num += 1;
             space_after_commaTime = 0;
         }
+
+    }
+
+    for (i = 0; i < strlen(pname); i++) {
         if (isspace(pname[i]) && i > (comma_index + 1) && second_space == -1) {
             second_space = i;
         }
-
     }
 
 
@@ -595,15 +598,15 @@ show(PG_FUNCTION_ARGS)
     if (second_space == -1) {
         second_space = strlen(pname);
     }
+
 //    printf("%d\n",second_space);
     if(isspace(pname[comma_index+1])) {         //Smith, John
         given_name_len = second_space-comma_index-1-1;
-        //elog(NOTICE, " spacc-------------");
-        //elog(NOTICE, " second_space is %d", second_space);
-        //elog(NOTICE, " comma_index is %d", comma_index);
-        //elog(NOTICE, " given length size is %d", given_name_len);
-        //elog(NOTICE, " given length size is %d", given_name_len);
-        //elog(NOTICE, "given name  palloc size is %d", given_name_len+1);
+        // elog(NOTICE, " spacc-------------");
+        // elog(NOTICE, " second_space is %d", second_space);
+        // elog(NOTICE, " comma_index is %d", comma_index);
+        // elog(NOTICE, " given length size is %d", given_name_len);
+        // elog(NOTICE, "given name  palloc size is %d", given_name_len+1);
         given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));     //AB,CDE
         strncpy(given_name,pname+comma_index+1+1, given_name_len);
@@ -637,13 +640,15 @@ show(PG_FUNCTION_ARGS)
     //// //elog(NOTICE, NOTICE, "the pname is %s", given_name);
     strcat(show_name," ");
     strcat(show_name,family_name);
-    // elog(NOTICE, "the length family_name is %s",family_name);
+    // elog(NOTICE, "the family_name is %s",family_name);
     // elog(NOTICE, "the length family_name is %d",family_name_len);
+    // elog(NOTICE, "the given name is %s",given_name);
     // elog(NOTICE, "the length given_name is %d",given_name_len);
     // elog(NOTICE, "the show name is %s",show_name);
-    // elog(NOTICE, "the length is %ld",strlen(show_name));
-    size = VARHDRSZ + strlen(show_name);
-    new_text= (text*) palloc(size-1);
+    // elog(NOTICE, "the total length is %ld",strlen(show_name));
+    size = VARHDRSZ + strlen(show_name) + 1;
+    // elog(NOTICE, "the palloc size %d",size);
+    new_text= (text*) palloc(size);
     SET_VARSIZE(new_text, size);
     strcpy(VARDATA(new_text), show_name);
     PG_RETURN_TEXT_P(new_text);
