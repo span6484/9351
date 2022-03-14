@@ -460,11 +460,16 @@ PG_FUNCTION_INFO_V1(show);
 Datum
 show(PG_FUNCTION_ARGS)
 {
-    char *pname = NULL;
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
+    text *new_text;
+
     // textsize= VARHDRSE + strlen(personName->pname) + 1
     // show name取出来返回
     //TODO
+    //return 一个字符串, 返回text
+    int32 size = 0;
+
+    char *pname = NULL;
     int i;
     int comma_num = 0;          //; appear times
     int comma_index = 0;        // , index
@@ -553,8 +558,16 @@ show(PG_FUNCTION_ARGS)
     //// //elog(NOTICE, NOTICE, "the pname is %s", given_name);
     strcat(show_name," ");
     strcat(show_name,family_name);
-    //elog(NOTICE, "show name is %s", show_name);
-    PG_RETURN_CSTRING(show_name);			//return 一个字符串, 返回text
+    // elog(NOTICE, "the length family_name is %s",family_name);
+    // elog(NOTICE, "the length family_name is %d",family_name_len);
+    // elog(NOTICE, "the length given_name is %d",given_name_len);
+    // elog(NOTICE, "the show name is %s",show_name);
+    // elog(NOTICE, "the length is %ld",strlen(show_name));
+    size = VARHDRSZ + strlen(show_name);
+    new_text= (text*) palloc(size-1);
+    SET_VARSIZE(new_text, size);
+    strcpy(VARDATA(new_text), show_name);
+    PG_RETURN_TEXT_P(new_text);
 }
 
 
