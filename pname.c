@@ -646,9 +646,9 @@ show(PG_FUNCTION_ARGS)
     // elog(NOTICE, "the length given_name is %d",given_name_len);
     // elog(NOTICE, "the show name is %s",show_name);
     // elog(NOTICE, "the total length is %ld",strlen(show_name));
-    size = VARHDRSZ + strlen(show_name) + 1;
+    size = VARHDRSZ + strlen(show_name);
     // elog(NOTICE, "the palloc size %d",size);
-    new_text= (text*) palloc(size);
+    new_text= (text*) palloc(size+1);
     SET_VARSIZE(new_text, size);
     strcpy(VARDATA(new_text), show_name);
     PG_RETURN_TEXT_P(new_text);
