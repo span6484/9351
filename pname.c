@@ -337,6 +337,19 @@ pname_abs_cmp(PG_FUNCTION_ARGS)
 }
 
 
+//define byself, for <>
+Datum
+pname_abs_df(PG_FUNCTION_ARGS)
+{
+    PersonName    *a = (PersonName *) PG_GETARG_POINTER(0);
+    PersonName    *b = (PersonName *) PG_GETARG_POINTER(1);
+
+    PG_RETURN_BOOL(pname_abs_cmp_internal(a, b) != 0);
+}
+
+PG_FUNCTION_INFO_V1(pname_abs_df);
+/////////////
+
 PG_FUNCTION_INFO_V1(family);
 
 Datum

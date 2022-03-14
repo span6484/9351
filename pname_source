@@ -34,6 +34,9 @@ CREATE FUNCTION pname_abs_ge(PersonName, PersonName) RETURNS bool
 CREATE FUNCTION pname_abs_gt(PersonName, PersonName) RETURNS bool
    AS '_OBJWD_/pname' LANGUAGE C IMMUTABLE STRICT;
 
+CREATE FUNCTION pname_abs_df(PersonName, PersonName) RETURNS bool
+   AS '_OBJWD_/pname' LANGUAGE C IMMUTABLE STRICT;
+
 CREATE OPERATOR < (
    leftarg = PersonName, rightarg = PersonName, procedure = pname_abs_lt,
    commutator = > , negator = >= ,
@@ -49,6 +52,7 @@ CREATE OPERATOR = (
    commutator = = ,
    -- leave out negator since we didn't create <> operator
    -- negator = <> ,
+   negator = <>,
    restrict = eqsel, join = eqjoinsel
 );
 CREATE OPERATOR >= (
@@ -60,6 +64,13 @@ CREATE OPERATOR > (
    leftarg = PersonName, rightarg = PersonName, procedure = pname_abs_gt,
    commutator = < , negator = <= ,
    restrict = scalargtsel, join = scalargtjoinsel
+);
+
+-- i define this
+CREATE OPERATOR <> (
+   leftarg = PersonName, rightarg = PersonName, procedure = pname_abs_df,
+   commutator = <> , negator = = ,
+   restrict = scalarltsel, join = scalargtjoinsel
 );
 
 
