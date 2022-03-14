@@ -1,23 +1,26 @@
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <libc.h>
-
-//
-// Created by shao on 2022/3/14.
-//
-int main(void) {
-    char* pname1 = "Smith,John";
-    char* pname2 = "Smith,Jane";
+static int
+pname_abs_cmp_internal(PersonName * a, PersonName * b)
+{
+    //To DO: 需要自己实现, 比较name, 先比较 family name, 再比较given name
+    // 1. 若果a 和 b 的first name , last name 都相等, return 1
+    //-允许空格, 大小写
+    int result = 0;
+    char* pname1 = NULL;
+    char* pname2 = NULL;
     int i = 0;
     int j = 0;
     char char_1;
     char char_2;
-    int result = 0;
-    int a = 0;
+    pname1 = palloc(sizeof(char) * strlen(a->pname));
+    pname2 = palloc(sizeof(char) * strlen(b->pname));
+
+    strcpy(pname1, a->pname);
+    strcpy(pname2, b->pname);
+    // elog(NOTICE, "%s",pname1);
+    // elog(NOTICE, "%s",pname2);    
     while(i < strlen(pname1) || j < strlen(pname2)) {
-        char_1 = tolower(pname1[i]);
-        char_2 = tolower(pname2[j]);
+        char_1 = pname1[i];
+        char_2 = pname2[j];
         if (char_1 == ',') {
             i++;
             continue;
@@ -52,4 +55,3 @@ int main(void) {
         return 0;
     }
 }
-

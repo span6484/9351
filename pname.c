@@ -281,8 +281,8 @@ pname_abs_cmp_internal(PersonName * a, PersonName * b)
     // elog(NOTICE, "%s",pname1);
     // elog(NOTICE, "%s",pname2);
     while(i < strlen(pname1) || j < strlen(pname2)) {
-        char_1 = tolower(pname1[i]);
-        char_2 = tolower(pname2[j]);
+        char_1 = pname1[i];
+        char_2 = pname2[j];
         if (char_1 == ',') {
             i++;
             continue;
