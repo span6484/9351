@@ -82,10 +82,10 @@ CREATE OPERATOR CLASS pname_abs_ops
 
 
 -- create the support function too
-CREATE FUNCTION family(PersonName) RETURNS cstring
+CREATE FUNCTION family(PersonName) RETURNS text
    AS '_OBJWD_/pname' LANGUAGE C IMMUTABLE STRICT;
 
-CREATE FUNCTION given(PersonName) RETURNS cstring
+CREATE FUNCTION given(PersonName) RETURNS text
    AS '_OBJWD_/pname' LANGUAGE C IMMUTABLE STRICT;
 
 CREATE FUNCTION show(PersonName) RETURNS text

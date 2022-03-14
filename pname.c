@@ -342,6 +342,13 @@ PG_FUNCTION_INFO_V1(family);
 Datum
 family(PG_FUNCTION_ARGS)
 {
+    text *new_text;
+
+    // textsize= VARHDRSE + strlen(personName->pname) + 1
+    // show name取出来返回
+    //TODO
+    //return 一个字符串, 返回text
+    int32 size = 0;
     int i;
     int comma_num = 0;          //; appear times
     int comma_index = -1;        // , index
@@ -373,7 +380,11 @@ family(PG_FUNCTION_ARGS)
     family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
-    PG_RETURN_CSTRING(family_name);			//return 一个字符串
+    size = VARHDRSZ + strlen(family_name);
+    new_text= (text*) palloc(size-1);
+    SET_VARSIZE(new_text, size);
+    strcpy(VARDATA(new_text), family_name);
+    PG_RETURN_TEXT_P(new_text);
 
 }
 
@@ -385,9 +396,11 @@ PG_FUNCTION_INFO_V1(given);
 Datum
 given(PG_FUNCTION_ARGS)
 {
+    text *new_text;
     char *pname = NULL;
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
     // 把given name取出来返回
+    int32 size = 0;
     int i;
     int comma_num = 0;          //; appear times
     int comma_index = -1;        // , index
@@ -449,7 +462,11 @@ given(PG_FUNCTION_ARGS)
 
     }
 
-    PG_RETURN_CSTRING(given_name);			//return 一个字符串
+    size = VARHDRSZ + strlen(given_name);
+    new_text= (text*) palloc(size-1);
+    SET_VARSIZE(new_text, size);
+    strcpy(VARDATA(new_text), given_name);
+    PG_RETURN_TEXT_P(new_text);
 }
 
 
