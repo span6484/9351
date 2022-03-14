@@ -113,25 +113,25 @@ static int check_input(char *pname) {
     }
 
     family_name_len = comma_index;      //'a\0'
-    //// elog(NOTICE, "comma index palloc size is %d", comma_index);
-    //// elog(NOTICE, "family name len is %d",family_name_len);
-    //// elog(NOTICE, "family name palloc size is %d", family_name_len+1);
+    //// //elog(NOTICE, "comma index palloc size is %d", comma_index);
+    //// //elog(NOTICE, "family name len is %d",family_name_len);
+    //// //elog(NOTICE, "family name palloc size is %d", family_name_len+1);
     family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
-    //// elog(NOTICE, "family name is %s", family_name);
+    //// //elog(NOTICE, "family name is %s", family_name);
 
     if(isspace(pname[comma_index+1])) {         //Smith, John
         given_name_len = strlen(pname)-comma_index-1-1;
 
-        //// elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
+        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
+        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);     //AB,CDE
         given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));     //AB,CDE
         strcpy(given_name,pname+comma_index+1+1);
-        //// elog(NOTICE, "pname name is %s",given_name);
+        //// //elog(NOTICE, "pname name is %s",given_name);
         given_name[given_name_len] = '\0';
     }
     else {
@@ -139,13 +139,13 @@ static int check_input(char *pname) {
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);
 
-        //// elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
+        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
+        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
         given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));
         strcpy(given_name,pname+comma_index+1);
         given_name[given_name_len] = '\0';
-        //// elog(NOTICE, "pname name is %s",given_name);
+        //// //elog(NOTICE, "pname name is %s",given_name);
 
     }
 
@@ -208,12 +208,12 @@ pname_out(PG_FUNCTION_ARGS)
     int comma_index = 0;
     result = palloc(sizeof(char)*strlen(personName->pname));
     strcpy(result,personName->pname);
-    //elog(NOTICE, "result is %s", result);
-    //elog(NOTICE, "result_len is %d", result_len);
+    ////elog(NOTICE, "result is %s", result);
+    ////elog(NOTICE, "result_len is %d", result_len);
     //printf("%d\n", given_name_len);
 
-    //// elog(NOTICE, "pname name length size is %d", given_name_len);
-    //// elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
+    //// //elog(NOTICE, "pname name length size is %d", given_name_len);
+    //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
     for (i = 0; i < strlen(result); i++) {
         if (result[i] == ',') {
             comma_index = i;
@@ -224,30 +224,30 @@ pname_out(PG_FUNCTION_ARGS)
     if(isspace(result[comma_index+1])) {
         comma_index += 1;
         new_result_len = strlen(result)-1;
-        // elog(NOTICE, "space after comma");
-        // elog(NOTICE, "comma_index is %d", comma_index);
-        // elog(NOTICE, "new_result_len is %d", new_result_len);
-        // elog(NOTICE, "new_result palloc is %d", new_result_len+1);
+        // //elog(NOTICE, "space after comma");
+        // //elog(NOTICE, "comma_index is %d", comma_index);
+        // //elog(NOTICE, "new_result_len is %d", new_result_len);
+        // //elog(NOTICE, "new_result palloc is %d", new_result_len+1);
         new_result = palloc(sizeof (char) * new_result_len+1);
 
         strncpy(new_result, result, comma_index);
         new_result[comma_index] = '\0';
-        // elog(NOTICE, "new_result front is %s", new_result);
+        // //elog(NOTICE, "new_result front is %s", new_result);
         strcat(new_result, result+comma_index+1);
         new_result[new_result_len] = '\0';
-        // elog(NOTICE, "new_result final is %s", new_result);
+        // //elog(NOTICE, "new_result final is %s", new_result);
 
     }
     else {
         new_result_len = strlen(result);
-        // elog(NOTICE, "no space after comma");
-        // elog(NOTICE, "comma_index is %d", comma_index);
-        // elog(NOTICE, "new_result_len is %d", new_result_len);
-        // elog(NOTICE, "new_result palloc is %d", new_result_len+1);
+        // //elog(NOTICE, "no space after comma");
+        // //elog(NOTICE, "comma_index is %d", comma_index);
+        // //elog(NOTICE, "new_result_len is %d", new_result_len);
+        // //elog(NOTICE, "new_result palloc is %d", new_result_len+1);
         new_result = palloc(sizeof (char) * new_result_len+1);
         strcpy(new_result, result);
         new_result[new_result_len] = '\0';
-        // elog(NOTICE, "new_result final is %s", new_result);
+        // //elog(NOTICE, "new_result final is %s", new_result);
     }
 
     // printf("%s\n", new_result);
@@ -367,9 +367,9 @@ family(PG_FUNCTION_ARGS)
 
     }
     family_name_len = comma_index;      //'a\0'
-    //// elog(NOTICE, "comma index palloc size is %d", comma_index);
-    //// elog(NOTICE, "family name len is %d",family_name_len);
-    //// elog(NOTICE, "family name palloc size is %d", family_name_len+1);
+    //// //elog(NOTICE, "comma index palloc size is %d", comma_index);
+    //// //elog(NOTICE, "family name len is %d",family_name_len);
+    //// //elog(NOTICE, "family name palloc size is %d", family_name_len+1);
     family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
@@ -419,19 +419,19 @@ given(PG_FUNCTION_ARGS)
 
     }
 
-    //// elog(NOTICE, "family name is %s", family_name);
+    //// //elog(NOTICE, "family name is %s", family_name);
 
     if(isspace(pname[comma_index+1])) {         //Smith, John
         given_name_len = strlen(pname)-comma_index-1-1;
 
-        //// elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
+        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
+        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);     //AB,CDE
         given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));     //AB,CDE
         strcpy(given_name,pname+comma_index+1+1);
-        //// elog(NOTICE, "pname name is %s",given_name);
+        //// //elog(NOTICE, "pname name is %s",given_name);
         given_name[given_name_len] = '\0';
     }
     else {
@@ -439,18 +439,19 @@ given(PG_FUNCTION_ARGS)
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);
 
-        //// elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
+        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
+        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
         given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));
         strcpy(given_name,pname+comma_index+1);
         given_name[given_name_len] = '\0';
-        //// elog(NOTICE, "pname name is %s",given_name);
+        //// //elog(NOTICE, "pname name is %s",given_name);
 
     }
 
     PG_RETURN_CSTRING(given_name);			//return 一个字符串
 }
+
 
 
 //	TO show		return string
@@ -498,8 +499,11 @@ show(PG_FUNCTION_ARGS)
     }
 
 
-    family_name_len = comma_index + 1;      //'a\0'
-    family_name = malloc(sizeof (char) * family_name_len);
+    family_name_len = comma_index;      //'a\0'
+    //// //elog(NOTICE, "comma index palloc size is %d", comma_index);
+    //// //elog(NOTICE, "family name len is %d",family_name_len);
+    //// //elog(NOTICE, "family name palloc size is %d", family_name_len+1);
+    family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
     // printf("%s\n", family_name);
@@ -509,39 +513,47 @@ show(PG_FUNCTION_ARGS)
     }
 //    printf("%d\n",second_space);
     if(isspace(pname[comma_index+1])) {         //Smith, John
-        given_name_len = second_space-comma_index-1;
-        //printf("%d\n", strlen(pname));
-        //printf("%d\n", given_name_len);     //AB,CDE
-        given_name = malloc(sizeof (char) * given_name_len);
+        given_name_len = second_space-comma_index-1-1;
+        //elog(NOTICE, " spacc-------------");
+        //elog(NOTICE, " second_space is %d", second_space);
+        //elog(NOTICE, " comma_index is %d", comma_index);
+        //elog(NOTICE, " given length size is %d", given_name_len);
+        //elog(NOTICE, " given length size is %d", given_name_len);
+        //elog(NOTICE, "given name  palloc size is %d", given_name_len+1);
+        given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));     //AB,CDE
-        strncpy(given_name,pname+comma_index+1+1, given_name_len-1);
-        given_name[given_name_len-1] = '\0';
+        strncpy(given_name,pname+comma_index+1+1, given_name_len);
+        given_name[given_name_len] = '\0';
+        //elog(NOTICE, "given name is %s", given_name);
     }
 //    printf("%s\n", given_name);
     else {
-        given_name_len = second_space-comma_index;                     //Smith,John
+        given_name_len = second_space-comma_index-1;                     //Smith,John
         //printf("%d\n", strlen(pname));
         //printf("%d\n", given_name_len);
-        given_name = malloc(sizeof (char) * given_name_len);
+        // //elog(NOTICE, " second_space is %d", second_space);
+        // //elog(NOTICE, " comma_index is %d", comma_index);
+        // //elog(NOTICE, " given_name length size is %d", given_name_len);
+        // //elog(NOTICE, " given_name  palloc size is %d", given_name_len+1);
+        given_name = palloc(sizeof (char) * given_name_len+1);
         //printf("%d\n", sizeof (given_name));
-        strncpy(given_name,pname+comma_index+1, given_name_len-1);
-        given_name[given_name_len-1] = '\0';
+        strncpy(given_name,pname+comma_index+1, given_name_len);
+        given_name[given_name_len] = '\0';
+        //elog(NOTICE, "given name is %s", given_name);
     }
-    //// elog(NOTICE, NOTICE, "the given_name_len is %d", given_name_len);
-    //// elog(NOTICE, NOTICE, "the given_nameis %s", given_name);
+    //// //elog(NOTICE, NOTICE, "the given_name_len is %d", given_name_len);
+    //// //elog(NOTICE, NOTICE, "the given_nameis %s", given_name);
     //printf("First name: %s\n", family_name);
     // printf("%s\n", given_name);
     // printf("%d\n", family_name_len+given_name_len);
     // show
-    given_name_len = given_name_len-1;          // 需要注意,上面given_name_len实际的多一个, 比如aa 上面是3个
     show_name = palloc(sizeof (char) * (family_name_len+given_name_len) + 1); //space + '\0'
     strcpy(show_name,given_name);
     show_name[given_name_len] = '\0';
-    //// elog(NOTICE, NOTICE, "the pname is %s", given_name);
+    //// //elog(NOTICE, NOTICE, "the pname is %s", given_name);
     strcat(show_name," ");
     strcat(show_name,family_name);
-    free(family_name);
-    free(given_name);
+    //elog(NOTICE, "show name is %s", show_name);
     PG_RETURN_CSTRING(show_name);			//return 一个字符串, 返回text
 }
 
