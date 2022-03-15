@@ -1,6 +1,6 @@
 //
-// Created by shao on 2022/3/10.
-//version 1，
+// Created by z5378096 on 2022/3/10.
+//version final
 
 /*
  * src/tutorial/pname.c
@@ -47,12 +47,10 @@ static int check_input(char *pname) {
     int space_after_commaTime = 0;
     int strlen_afterSpace_count = 0;            // count strnglen after each space
     if (!isalpha(pname[0])){
-        //printf("first char is not alpha");
         condition = 0;
         return condition;
     }
     if (isspace(pname[0])){         //' Smith, John'
-        //printf("first char is not space");
         condition = 0;
         return condition;
     }
@@ -67,7 +65,6 @@ static int check_input(char *pname) {
         }
         if (isspace(pname[i]) && space_after_commaTime == 1) {
             condition = 0;
-            //printf("space error, there should not 2 more space after comma");
             return condition;
         }
         if (isspace(pname[i]) && (i == comma_index+1)) {
@@ -76,13 +73,11 @@ static int check_input(char *pname) {
         if (pname[i] == ',') {
             if (isspace(pname[i-1])) {
                 condition = 0;
-                //printf("space before the comma\n");
                 return condition;
             }
             comma_index = i;
             comma_num += 1;
             if(comma_num == 2){                     // two time comma is error
-                //printf("Comma False\n");
                 condition = 0;
                 return condition;
             }
@@ -107,64 +102,36 @@ static int check_input(char *pname) {
     }
     if (comma_num == -1) {
         condition = 0;
-
-        //printf("there will be no people with just one name");
         return condition;
     }
 
     family_name_len = comma_index;      //'a\0'
-    //// //elog(NOTICE, "comma index palloc size is %d", comma_index);
-    //// //elog(NOTICE, "family name len is %d",family_name_len);
-    //// //elog(NOTICE, "family name palloc size is %d", family_name_len+1);
     family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
-    //// //elog(NOTICE, "family name is %s", family_name);
 
     if(isspace(pname[comma_index+1])) {         //Smith, John
         given_name_len = strlen(pname)-comma_index-1-1;
-
-        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
-        //printf("%d\n", strlen(pname));
-        //printf("%d\n", given_name_len);     //AB,CDE
         given_name = palloc(sizeof (char) * given_name_len+1);
-        //printf("%d\n", sizeof (given_name));     //AB,CDE
         strcpy(given_name,pname+comma_index+1+1);
-        //// //elog(NOTICE, "pname name is %s",given_name);
         given_name[given_name_len] = '\0';
     }
     else {
         given_name_len = strlen(pname)-comma_index;                     //Smith,John
-        //printf("%d\n", strlen(pname));
-        //printf("%d\n", given_name_len);
-
-        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
         given_name = palloc(sizeof (char) * given_name_len+1);
-        //printf("%d\n", sizeof (given_name));
         strcpy(given_name,pname+comma_index+1);
         given_name[given_name_len] = '\0';
-        //// //elog(NOTICE, "pname name is %s",given_name);
-
     }
 
     if (!isupper(family_name[0]) || !isupper(given_name[0])) {         //names begin with an upper-case letter
-        //printf("First letter should be Caps\n");
         condition = 0;
         return condition;
     }
 
     if (strlen(family_name) < 2 || strlen(given_name) < 2) {         //names begin with an upper-case letter
-        //printf("names must at least 2 letters\n");
         condition = 0;
         return condition;
     }
-    //printf("First name: %s\n", family_name);
-    //printf("Given name: %s\n", given_name);
-
-    // free(family_name);
-    // free(given_name);
     return condition;
 }
 
@@ -173,10 +140,8 @@ PG_FUNCTION_INFO_V1(pname_in);
 Datum
 pname_in(PG_FUNCTION_ARGS)
 {
-    // Shepherd, John Andrew
     char	   *str = PG_GETARG_CSTRING(0);
     PersonName    *result;
-    //string length
     int length = 0;
 
     if (check_input(str) == 0)			//0 is false
@@ -185,13 +150,10 @@ pname_in(PG_FUNCTION_ARGS)
                         errmsg("invalid input syntax for type %s: \"%s\"",
                                "PersonName", str)));
 
-    length = strlen(str) + 1;			//c语言字符串长度后面空一个
+    length = strlen(str) + 1;
     result = (PersonName *) palloc(VARHDRSZ + length);
-    SET_VARSIZE(result, VARHDRSZ + length);		// 分配好足够内存
-    // result->x = x;
-    // result->y  = y;				//要做处理
-    strcpy(result->pname, str);		//复制输入的内容到postgresql中
-    // 返回结构体指针
+    SET_VARSIZE(result, VARHDRSZ + length);		// allocate enough memory
+    strcpy(result->pname, str);
     PG_RETURN_POINTER(result);
 }
 
@@ -208,12 +170,6 @@ pname_out(PG_FUNCTION_ARGS)
     int comma_index = 0;
     result = palloc(sizeof(char)*strlen(personName->pname));
     strcpy(result,personName->pname);
-    ////elog(NOTICE, "result is %s", result);
-    ////elog(NOTICE, "result_len is %d", result_len);
-    //printf("%d\n", given_name_len);
-
-    //// //elog(NOTICE, "pname name length size is %d", given_name_len);
-    //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
     for (i = 0; i < strlen(result); i++) {
         if (result[i] == ',') {
             comma_index = i;
@@ -224,34 +180,18 @@ pname_out(PG_FUNCTION_ARGS)
     if(isspace(result[comma_index+1])) {
         comma_index += 1;
         new_result_len = strlen(result)-1;
-        // //elog(NOTICE, "space after comma");
-        // //elog(NOTICE, "comma_index is %d", comma_index);
-        // //elog(NOTICE, "new_result_len is %d", new_result_len);
-        // //elog(NOTICE, "new_result palloc is %d", new_result_len+1);
         new_result = palloc(sizeof (char) * new_result_len+1);
-
         strncpy(new_result, result, comma_index);
         new_result[comma_index] = '\0';
-        // //elog(NOTICE, "new_result front is %s", new_result);
         strcat(new_result, result+comma_index+1);
         new_result[new_result_len] = '\0';
-        // //elog(NOTICE, "new_result final is %s", new_result);
-
     }
     else {
         new_result_len = strlen(result);
-        // //elog(NOTICE, "no space after comma");
-        // //elog(NOTICE, "comma_index is %d", comma_index);
-        // //elog(NOTICE, "new_result_len is %d", new_result_len);
-        // //elog(NOTICE, "new_result palloc is %d", new_result_len+1);
         new_result = palloc(sizeof (char) * new_result_len+1);
         strcpy(new_result, result);
         new_result[new_result_len] = '\0';
-        // //elog(NOTICE, "new_result final is %s", new_result);
     }
-
-    // printf("%s\n", new_result);
-    // result = psprintf("%s", personName->pname);	//格式化输出
     PG_RETURN_CSTRING(new_result);
 
 }
@@ -259,13 +199,11 @@ pname_out(PG_FUNCTION_ARGS)
 
 
 
-
+//To DO: compare the family name, and given name,
+// 0 for equal, -1 for a < b, 1 for a > b
 static int
 pname_abs_cmp_internal(PersonName * a, PersonName * b)
 {
-    //To DO: 需要自己实现, 比较name, 先比较 family name, 再比较given name
-    // 1. 若果a 和 b 的first name , last name 都相等, return 1
-    //-允许空格, 大小写
     int result = 0;
     char* pname1 = NULL;
     char* pname2 = NULL;
@@ -278,8 +216,6 @@ pname_abs_cmp_internal(PersonName * a, PersonName * b)
 
     strcpy(pname1, a->pname);
     strcpy(pname2, b->pname);
-    // elog(NOTICE, "%s",pname1);
-    // elog(NOTICE, "%s",pname2);
     while(i < strlen(pname1) || j < strlen(pname2)) {
         char_1 = pname1[i];
         char_2 = pname2[j];
@@ -385,8 +321,8 @@ pname_abs_cmp(PG_FUNCTION_ARGS)
     PG_RETURN_INT32(pname_abs_cmp_internal(a, b));
 }
 
-//define byself, for <>
-
+//To DO
+// construct by mself, for < > part
 PG_FUNCTION_INFO_V1(pname_abs_df);
 Datum
 pname_abs_df(PG_FUNCTION_ARGS)
@@ -399,27 +335,25 @@ pname_abs_df(PG_FUNCTION_ARGS)
 
 /////////////
 
+//TODO
+//return family name, TEXT type
 PG_FUNCTION_INFO_V1(family);
 
 Datum
 family(PG_FUNCTION_ARGS)
 {
-    text *new_text;
 
-    // textsize= VARHDRSE + strlen(personName->pname) + 1
-    // show name取出来返回
-    //TODO
-    //return 一个字符串, 返回text
+    text *new_text;
     int32 size = 0;
     int i;
-    int comma_num = 0;          //; appear times
+    int comma_num = 0;          //, appear times
     int comma_index = -1;        // , index
     char* family_name;
     int family_name_len;
     int space_after_commaTime = 0;
     char *pname;
     PersonName    *a = (PersonName *) PG_GETARG_POINTER(0);
-    pname = psprintf("%s", a->pname);	//格式化输出
+    pname = psprintf("%s", a->pname);
     for (i = 0; i < strlen(pname); i++) {
         if (!isspace(pname[i])) {
             space_after_commaTime = 0;
@@ -436,9 +370,6 @@ family(PG_FUNCTION_ARGS)
 
     }
     family_name_len = comma_index;      //'a\0'
-    //// //elog(NOTICE, "comma index palloc size is %d", comma_index);
-    //// //elog(NOTICE, "family name len is %d",family_name_len);
-    //// //elog(NOTICE, "family name palloc size is %d", family_name_len+1);
     family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
@@ -451,8 +382,8 @@ family(PG_FUNCTION_ARGS)
 }
 
 
-
-//	TO given. return string
+//TODO
+//return given name, TEXT type
 PG_FUNCTION_INFO_V1(given);
 
 Datum
@@ -461,7 +392,6 @@ given(PG_FUNCTION_ARGS)
     text *new_text;
     char *pname = NULL;
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
-    // 把given name取出来返回
     int32 size = 0;
     int i;
     int comma_num = 0;          //; appear times
@@ -469,8 +399,8 @@ given(PG_FUNCTION_ARGS)
     char* given_name;
     int given_name_len;
     int space_after_commaTime = 0;
-    int strlen_afterSpace_count = 0;            // count strnglen after each space
-    pname = psprintf("%s", a->pname);	//格式化输出
+    int strlen_afterSpace_count = 0;            // count strlen after each space
+    pname = psprintf("%s", a->pname);
 
     for (i = 0; i < strlen(pname); i++) {
 
@@ -494,34 +424,18 @@ given(PG_FUNCTION_ARGS)
 
     }
 
-    //// //elog(NOTICE, "family name is %s", family_name);
 
     if(isspace(pname[comma_index+1])) {         //Smith, John
         given_name_len = strlen(pname)-comma_index-1-1;
-
-        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
-        //printf("%d\n", strlen(pname));
-        //printf("%d\n", given_name_len);     //AB,CDE
         given_name = palloc(sizeof (char) * given_name_len+1);
-        //printf("%d\n", sizeof (given_name));     //AB,CDE
         strcpy(given_name,pname+comma_index+1+1);
-        //// //elog(NOTICE, "pname name is %s",given_name);
         given_name[given_name_len] = '\0';
     }
     else {
         given_name_len = strlen(pname)-comma_index;                     //Smith,John
-        //printf("%d\n", strlen(pname));
-        //printf("%d\n", given_name_len);
-
-        //// //elog(NOTICE, "pname name length size is %d", given_name_len);
-        //// //elog(NOTICE, "pname name  palloc size is %d", given_name_len+1);
         given_name = palloc(sizeof (char) * given_name_len+1);
-        //printf("%d\n", sizeof (given_name));
         strcpy(given_name,pname+comma_index+1);
         given_name[given_name_len] = '\0';
-        //// //elog(NOTICE, "pname name is %s",given_name);
-
     }
 
     size = VARHDRSZ + strlen(given_name);
@@ -533,7 +447,9 @@ given(PG_FUNCTION_ARGS)
 
 
 
-//	TO show		return string
+//TODO
+//return familyName + "," + givenName, the given Name is the first substring before the space
+//Type: TEXT
 PG_FUNCTION_INFO_V1(show);
 
 Datum
@@ -542,10 +458,6 @@ show(PG_FUNCTION_ARGS)
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
     text *new_text;
 
-    // textsize= VARHDRSE + strlen(personName->pname) + 1
-    // show name取出来返回
-    //TODO
-    //return 一个字符串, 返回text
     int32 size = 0;
 
     char *pname = NULL;
@@ -560,9 +472,6 @@ show(PG_FUNCTION_ARGS)
     int space_after_commaTime;
     int second_space = -1;     // mark the space after given name
     pname = psprintf("%s", a->pname);
-    // text *return_text;
-    // int32 text_size;
-
     for (i = 0; i < strlen(pname); i++) {
         if (!isspace(pname[i])) {
             space_after_commaTime = 0;
@@ -587,67 +496,36 @@ show(PG_FUNCTION_ARGS)
 
 
     family_name_len = comma_index;      //'a\0'
-    //// //elog(NOTICE, "comma index palloc size is %d", comma_index);
-    //// //elog(NOTICE, "family name len is %d",family_name_len);
-    //// //elog(NOTICE, "family name palloc size is %d", family_name_len+1);
     family_name = palloc(sizeof (char) * family_name_len+1);
     strncpy(family_name,pname, comma_index);
     family_name[comma_index] = '\0';
-    // printf("%s\n", family_name);
     // show given name
     if (second_space == -1) {
         second_space = strlen(pname);
     }
 
-//    printf("%d\n",second_space);
     if(isspace(pname[comma_index+1])) {         //Smith, John
         given_name_len = second_space-comma_index-1-1;
-        // elog(NOTICE, " spacc-------------");
-        // elog(NOTICE, " second_space is %d", second_space);
-        // elog(NOTICE, " comma_index is %d", comma_index);
-        // elog(NOTICE, " given length size is %d", given_name_len);
-        // elog(NOTICE, "given name  palloc size is %d", given_name_len+1);
         given_name = palloc(sizeof (char) * given_name_len+1);
-        //printf("%d\n", sizeof (given_name));     //AB,CDE
         strncpy(given_name,pname+comma_index+1+1, given_name_len);
         given_name[given_name_len] = '\0';
-        //elog(NOTICE, "given name is %s", given_name);
+
     }
-//    printf("%s\n", given_name);
     else {
         given_name_len = second_space-comma_index-1;                     //Smith,John
-        //printf("%d\n", strlen(pname));
-        //printf("%d\n", given_name_len);
-        // //elog(NOTICE, " second_space is %d", second_space);
-        // //elog(NOTICE, " comma_index is %d", comma_index);
-        // //elog(NOTICE, " given_name length size is %d", given_name_len);
-        // //elog(NOTICE, " given_name  palloc size is %d", given_name_len+1);
         given_name = palloc(sizeof (char) * given_name_len+1);
-        //printf("%d\n", sizeof (given_name));
         strncpy(given_name,pname+comma_index+1, given_name_len);
         given_name[given_name_len] = '\0';
-        //elog(NOTICE, "given name is %s", given_name);
     }
-    //// //elog(NOTICE, NOTICE, "the given_name_len is %d", given_name_len);
-    //// //elog(NOTICE, NOTICE, "the given_nameis %s", given_name);
-    //printf("First name: %s\n", family_name);
-    // printf("%s\n", given_name);
-    // printf("%d\n", family_name_len+given_name_len);
+
     // show
     show_name = palloc(sizeof (char) * (family_name_len+given_name_len) + 1); //space + '\0'
     strcpy(show_name,given_name);
     show_name[given_name_len] = '\0';
-    //// //elog(NOTICE, NOTICE, "the pname is %s", given_name);
+
     strcat(show_name," ");
     strcat(show_name,family_name);
-    // elog(NOTICE, "the family_name is %s",family_name);
-    // elog(NOTICE, "the length family_name is %d",family_name_len);
-    // elog(NOTICE, "the given name is %s",given_name);
-    // elog(NOTICE, "the length given_name is %d",given_name_len);
-    // elog(NOTICE, "the show name is %s",show_name);
-    // elog(NOTICE, "the total length is %ld",strlen(show_name));
     size = VARHDRSZ + strlen(show_name);
-    // elog(NOTICE, "the palloc size %d",size);
     new_text= (text*) palloc(size+1);
     SET_VARSIZE(new_text, size);
     strcpy(VARDATA(new_text), show_name);
@@ -656,6 +534,7 @@ show(PG_FUNCTION_ARGS)
 
 
 //	TO hash.  return int
+// new_str = family + givenName, delete all comma, space
 PG_FUNCTION_INFO_V1(pname_hash);
 
 Datum
@@ -663,8 +542,6 @@ pname_hash(PG_FUNCTION_ARGS)
 {
     int hash_code = 0;
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
-    // 把family name + given name, 去掉逗号和空格取出来后hash
-    //TODO
     char* pname = NULL;
     char* new_str = NULL;
     int signal_count = 0;
@@ -672,7 +549,7 @@ pname_hash(PG_FUNCTION_ARGS)
     int i,j;
     char x;
     pname =  psprintf("%s", a->pname);
-    new_str = palloc(sizeof (char) * pname_len);             //不用加一， 因为要去逗号
+    new_str = palloc(sizeof (char) * pname_len);
     for (i = 0, j = 0; i < pname_len; i++) {
         x = pname[i];
         if (x == ',' || x == ' ') {
@@ -686,5 +563,5 @@ pname_hash(PG_FUNCTION_ARGS)
     new_str[j] = '\0';
     //
     hash_code = DatumGetUInt32(hash_any((const unsigned char *) new_str, strlen(new_str)));
-    PG_RETURN_INT32(hash_code);			//return 一个字符串
+    PG_RETURN_INT32(hash_code);
 }
