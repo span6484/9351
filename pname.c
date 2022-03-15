@@ -663,8 +663,28 @@ pname_hash(PG_FUNCTION_ARGS)
 {
     int hash_code = 0;
     PersonName *a = (PersonName *) PG_GETARG_POINTER(0);
-    // 把family name, given name, 取出来后hash
+    // 把family name + given name, 去掉逗号和空格取出来后hash
     //TODO
-    hash_code = DatumGetUInt32(hash_any((const unsigned char *) a->pname, strlen(a->pname)));
+    char* pname = NULL;
+    char* new_str = NULL;
+    int signal_count = 0;
+    int pname_len = strlen(a->pname);
+    int i,j;
+    char x;
+    pname =  psprintf("%s", a->pname);
+    new_str = palloc(sizeof (char) * pname_len);             //不用加一， 因为要去逗号
+    for (i = 0, j = 0; i < pname_len; i++) {
+        x = pname[i];
+        if (x == ',' || x == ' ') {
+            signal_count++;
+            continue;
+        }
+
+        new_str[j] = pname[i];
+        j++;
+    }
+    new_str[j] = '\0';
+    //
+    hash_code = DatumGetUInt32(hash_any((const unsigned char *) new_str, strlen(new_str)));
     PG_RETURN_INT32(hash_code);			//return 一个字符串
 }
